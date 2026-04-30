@@ -130,7 +130,7 @@ private func encoderCallback(
     let encoder = Unmanaged<VideoEncoder>.fromOpaque(outputCallbackRefCon).takeUnretainedValue()
 
     let isKeyFrame = sampleBuffer.sampleAttachments.first?[
-        kCMSampleAttachmentKey_NotSync as String
+        kCMSampleAttachmentKey_NotSync as CMSampleBuffer.PerSampleAttachmentsDictionary.Key
     ] as? Bool != true
 
     if let dataBuffer = sampleBuffer.dataBuffer {
