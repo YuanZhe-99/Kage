@@ -15,10 +15,10 @@ let package = Package(
             name: "KageController",
             dependencies: [],
             path: "Sources",
-            swiftSettings: [
-                .unsafeFlags(["-framework", "VideoToolbox"]),
-                .unsafeFlags(["-framework", "Metal"]),
-                .unsafeFlags(["-framework", "MetalKit"]),
+            linkerSettings: [
+                .linkedFramework("Metal"),
+                .linkedFramework("MetalKit"),
+                .linkedFramework("VideoToolbox"),
             ]
         ),
         .testTarget(

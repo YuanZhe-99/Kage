@@ -15,10 +15,10 @@ let package = Package(
             name: "ContextHelper",
             dependencies: [],
             path: "Sources",
-            swiftSettings: [
-                .unsafeFlags(["-framework", "ScreenCaptureKit"]),
-                .unsafeFlags(["-framework", "VideoToolbox"]),
-                .unsafeFlags(["-framework", "ApplicationServices"]),
+            linkerSettings: [
+                .linkedFramework("ApplicationServices"),
+                .linkedFramework("ScreenCaptureKit"),
+                .linkedFramework("VideoToolbox"),
             ]
         ),
         .testTarget(

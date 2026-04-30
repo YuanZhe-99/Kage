@@ -1,10 +1,10 @@
 package main
 
 import (
+	"bufio"
 	"context"
 	"crypto/tls"
 	"fmt"
-	"io"
 	"net/http"
 
 	"github.com/quic-go/quic-go"
@@ -84,7 +84,7 @@ func (s *QUICServer) handleConnection(ctx context.Context, conn quic.Connection)
 func (s *QUICServer) handleStream(stream quic.Stream) {
 	defer stream.Close()
 
-	req, err := http.ReadRequest(io.Reader(stream))
+	req, err := http.ReadRequest(bufio.NewReader(stream))
 	if err != nil {
 		log.Errorf("Failed to read HTTP request: %v", err)
 		return

@@ -1,0 +1,112 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+      - main
+    tags:
+      - 'v*'
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  go-build:
+    name: Go build (${{ matrix.module }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        module:
+          - Signaling
+          - Relay
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22.x'
+          cache-dependency-path: ${{ matrix.module }}/go.sum
+
+      - name: Download dependencies
+        working-directory: ${{ matrix.module }}
+        run: go mod download
+
+      - name: Test
+        working-directory: ${{ matrix.module }}
+        run: go test ./...
+
+      - name: Build Linux artifact
+        working-directory: ${{ matrix.module }}
+        run: |
+          mkdir -p dist
+          if [ "${{ matrix.module }}" = "Signaling" ]; then
+            binary_name="kage-signaling-linux-amd64"
+          else
+            binary_name="kage-relay-linux-amd64"
+          fi
+          GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o "dist/${binary_name}" .
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.module }}-linux-amd64
+          path: ${{ matrix.module }}/dist/*
+          if-no-files-found: error
+
+  swift-build:
+    name: Swift package build (${{ matrix.module }})
+    runs-on: macos-14
+    continue-on-error: true
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - module: Agent
+            path: Agent
+          - module: Controller
+            path: Controller/macOS
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Toolchain info
+        run: |
+          xcodebuild -version
+          swift --version
+
+      - name: Resolve dependencies
+        working-directory: ${{ matrix.path }}
+        run: swift package resolve
+
+      - name: Build
+        working-directory: ${{ matrix.path }}
+        run: swift build -c debug
+
+  release:
+    name: Release artifacts
+    needs:
+      - go-build
+      - swift-build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/**/*
