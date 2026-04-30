@@ -19,7 +19,8 @@ class DiscoveryService {
 
     func startDiscovery() {
         discoveryTimer = Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { [weak self] _ in
-            Task {
+            guard let self = self else { return }
+            Task { [weak self] in
                 await self?.refreshDeviceList()
             }
         }

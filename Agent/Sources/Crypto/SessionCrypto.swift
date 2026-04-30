@@ -32,10 +32,9 @@ class SessionCrypto {
             throw SessionCryptoError.noSharedSecret
         }
 
-        let saltData = SymmetricKey(data: salt)
         symmetricKey = sharedSecret.hkdfDerivedSymmetricKey(
             using: SHA256.self,
-            salt: saltData,
+            salt: salt,
             sharedInfo: Data(),
             outputByteCount: 32
         )

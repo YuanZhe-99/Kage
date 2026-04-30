@@ -61,7 +61,7 @@ class VideoEncoder {
 
     private func setProperty(_ key: CFString, _ value: CFTypeRef) throws {
         guard let session = session else { throw VideoEncoderError.sessionNotInitialized }
-        let status = VTCompressionSessionSetProperty(session, key: key, value: value)
+        let status = VTSessionSetProperty(session, key: key, value: value)
         guard status == noErr else {
             throw VideoEncoderError.propertySetFailed(key as String, status)
         }
@@ -92,26 +92,12 @@ class VideoEncoder {
     }
 
     func forceKeyFrame() {
-        guard let session = session else { return }
-
-        let properties = [
-            kVTEncodeFrameOptionKey_ForceKeyFrame: true
-        ] as CFDictionary
-
-        VTCompressionSessionEncodeFrame(
-            session,
-            imageBuffer: nil,
-            presentationTimeStamp: .zero,
-            duration: .invalid,
-            frameProperties: properties,
-            sourceFrameRefcon: nil,
-            infoFlagsOut: nil
-        )
+        frameCount = 0
     }
 
     private func updateBitrate() {
         guard let session = session else { return }
-        VTCompressionSessionSetProperty(
+        VTSessionSetProperty(
             session,
             key: kVTCompressionPropertyKey_AverageBitRate,
             value: bitrate as CFNumber
@@ -143,7 +129,7 @@ private func encoderCallback(
 
     let encoder = Unmanaged<VideoEncoder>.fromOpaque(outputCallbackRefCon).takeUnretainedValue()
 
-    let isKeyFrame = !sampleBuffer.dependsOnOthers
+    let isKeyFrame = sampleBuffer.isSync
 
     if let dataBuffer = sampleBuffer.dataBuffer {
         var totalLength = 0

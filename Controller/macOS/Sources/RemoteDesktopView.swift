@@ -16,7 +16,7 @@ struct RemoteDesktopView: View {
 
     var body: some View {
         ZStack {
-            MetalView(renderer: viewModel.renderer)
+            MetalRemoteView(renderer: viewModel.renderer)
                 .onTapGesture { location in
                     viewModel.handleClick(at: location)
                 }
@@ -212,6 +212,17 @@ class RemoteDesktopViewModel: ObservableObject {
             latency = Int.random(in: 10...50)
             bitrate = String(format: "%.1f", Double.random(in: 1.0...10.0))
         }
+    }
+}
+
+struct MetalRemoteView: NSViewRepresentable {
+    let renderer: RemoteRenderer
+
+    func makeNSView(context: Context) -> MTKView {
+        return renderer.view
+    }
+
+    func updateNSView(_ nsView: MTKView, context: Context) {
     }
 }
 

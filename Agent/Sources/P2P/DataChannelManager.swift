@@ -70,13 +70,13 @@ struct DataChannelConfig: Codable {
     let ordered: Bool
     let maxRetransmits: Int?
     let maxPacketLifeTime: Int?
-    let protocol: String?
+    let proto: String?
 
-    init(ordered: Bool = true, maxRetransmits: Int? = nil, maxPacketLifeTime: Int? = nil, protocol: String? = nil) {
+    init(ordered: Bool = true, maxRetransmits: Int? = nil, maxPacketLifeTime: Int? = nil, proto: String? = nil) {
         self.ordered = ordered
         self.maxRetransmits = maxRetransmits
         self.maxPacketLifeTime = maxPacketLifeTime
-        self.protocol = `protocol`
+        self.proto = proto
     }
 }
 

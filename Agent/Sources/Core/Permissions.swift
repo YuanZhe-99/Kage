@@ -1,6 +1,6 @@
 import Foundation
+import AppKit
 import ApplicationServices
-import AVFoundation
 
 enum Permission {
     case screenCapture
@@ -26,7 +26,7 @@ class Permissions {
             return CGPreflightScreenCaptureAccess()
         } else {
             return CGDisplayStream(
-                displayID: CGMainDisplayID(),
+                display: CGMainDisplayID(),
                 outputWidth: 1,
                 outputHeight: 1,
                 pixelFormat: Int32(kCVPixelFormatType_32BGRA),

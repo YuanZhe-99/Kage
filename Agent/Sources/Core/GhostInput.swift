@@ -33,13 +33,14 @@ class GhostInput {
     func typeText(_ text: String) {
         for char in text {
             let string = String(char)
+            var unichar = Array(string.utf16)
             let event = CGEvent(keyboardEventSource: nil, virtualKey: 0, keyDown: true)
-            event?.keyboardSetUnicodeString(string: string, length: 1)
-            event?.post(tap: .cghidEventTap)
+            event?.keyboardSetUnicodeString(stringLength: 1, unicodeString: &unichar)
+            event?.post(tap: CGEventTapLocation.cghidEventTap)
 
             let eventUp = CGEvent(keyboardEventSource: nil, virtualKey: 0, keyDown: false)
-            eventUp?.keyboardSetUnicodeString(string: string, length: 1)
-            eventUp?.post(tap: .cghidEventTap)
+            eventUp?.keyboardSetUnicodeString(stringLength: 1, unicodeString: &unichar)
+            eventUp?.post(tap: CGEventTapLocation.cghidEventTap)
 
             usleep(10000)
         }
@@ -48,23 +49,23 @@ class GhostInput {
     func pressKey(_ keyCode: CGKeyCode, modifiers: CGEventFlags = []) {
         let eventDown = CGEvent(keyboardEventSource: nil, virtualKey: keyCode, keyDown: true)
         eventDown?.flags = modifiers
-        eventDown?.post(tap: .cghidEventTap)
+        eventDown?.post(tap: CGEventTapLocation.cghidEventTap)
 
         let eventUp = CGEvent(keyboardEventSource: nil, virtualKey: keyCode, keyDown: false)
         eventUp?.flags = modifiers
-        eventUp?.post(tap: .cghidEventTap)
+        eventUp?.post(tap: CGEventTapLocation.cghidEventTap)
     }
 
     func scroll(at point: CGPoint, deltaX: Int32, deltaY: Int32) {
         let event = CGEvent(
-            scrollEvent2Source: nil,
+            scrollWheelEvent2Source: nil,
             units: .pixel,
             wheelCount: 2,
             wheel1: deltaY,
             wheel2: deltaX,
             wheel3: 0
         )
-        event?.post(tap: .cghidEventTap)
+        event?.post(tap: CGEventTapLocation.cghidEventTap)
     }
 
     private func getElementAtPosition(_ point: CGPoint) -> AXUIElement? {

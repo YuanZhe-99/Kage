@@ -22,12 +22,6 @@ class ScreenCapture: NSObject {
         }
     }
 
-    var capturesCursor: Bool = false {
-        didSet {
-            configuration.capturesCursor = capturesCursor
-        }
-    }
-
     override init() {
         configuration = SCStreamConfiguration()
         super.init()
@@ -38,7 +32,6 @@ class ScreenCapture: NSObject {
         configuration.width = 1920
         configuration.height = 1080
         configuration.minimumFrameInterval = CMTime(value: 1, timescale: 30)
-        configuration.capturesCursor = false
         configuration.showsCursor = false
         configuration.pixelFormat = kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange
     }
@@ -70,7 +63,7 @@ class ScreenCapture: NSObject {
         filter = SCContentFilter(display: display, excludingWindows: [])
 
         stream = SCStream(filter: filter!, configuration: configuration, delegate: self)
-        try stream?.addStreamOutput(self, type: .screen, sampleBufferHandlerQueue: .main)
+        try stream?.addStreamOutput(self, type: .screen, sampleHandlerQueue: .main)
         try await stream?.startCapture()
 
         isCapturing = true
@@ -87,7 +80,7 @@ class ScreenCapture: NSObject {
         filter = SCContentFilter(desktopIndependentWindow: window)
 
         stream = SCStream(filter: filter!, configuration: configuration, delegate: self)
-        try stream?.addStreamOutput(self, type: .screen, sampleBufferHandlerQueue: .main)
+        try stream?.addStreamOutput(self, type: .screen, sampleHandlerQueue: .main)
         try await stream?.startCapture()
 
         isCapturing = true
@@ -118,8 +111,7 @@ extension ScreenCapture: SCStreamOutput {
     func stream(_ stream: SCStream, didOutputSampleBuffer sampleBuffer: CMSampleBuffer, of type: SCStreamOutputType) {
         guard type == .screen else { return }
         guard let imageBuffer = sampleBuffer.imageBuffer else { return }
-        guard let presentationTimeStamp = sampleBuffer.presentationTimeStamp else { return }
 
-        delegate?.screenCapture(self, didOutputFrame: imageBuffer, timestamp: presentationTimeStamp)
+        delegate?.screenCapture(self, didOutputFrame: imageBuffer, timestamp: sampleBuffer.presentationTimeStamp)
     }
 }

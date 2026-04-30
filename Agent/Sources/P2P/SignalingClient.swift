@@ -146,7 +146,8 @@ class SignalingClient {
 
     func startHeartbeat(deviceId: String) {
         heartbeatTimer = Timer.scheduledTimer(withTimeInterval: 30, repeats: true) { [weak self] _ in
-            Task {
+            guard let self = self else { return }
+            Task { [weak self] in
                 try? await self?.sendHeartbeat(deviceId: deviceId)
             }
         }

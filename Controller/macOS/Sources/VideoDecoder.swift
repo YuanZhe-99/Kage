@@ -27,22 +27,24 @@ class VideoDecoder {
             throw VideoDecoderError.noFormatDescription
         }
 
-        let outputCallback: VTDecompressionOutputCallback = { decompressionOutputRefCon, sourceFrameRefCon, status, infoFlags, imageBuffer, presentationTimeStamp, presentationDuration in
-            guard status == noErr else { return }
-            guard let imageBuffer = imageBuffer else { return }
-            guard let decompressionOutputRefCon = decompressionOutputRefCon else { return }
+        var callbackRecord = VTDecompressionOutputCallbackRecord(
+            decompressionOutputCallback: { decompressionOutputRefCon, sourceFrameRefCon, status, infoFlags, imageBuffer, presentationTimeStamp, presentationDuration in
+                guard status == noErr else { return }
+                guard let imageBuffer = imageBuffer else { return }
+                guard let decompressionOutputRefCon = decompressionOutputRefCon else { return }
 
-            let decoder = Unmanaged<VideoDecoder>.fromOpaque(decompressionOutputRefCon).takeUnretainedValue()
-            decoder.delegate?.videoDecoder(decoder, didDecodeFrame: imageBuffer, timestamp: presentationTimeStamp)
-        }
+                let decoder = Unmanaged<VideoDecoder>.fromOpaque(decompressionOutputRefCon).takeUnretainedValue()
+                decoder.delegate?.videoDecoder(decoder, didDecodeFrame: imageBuffer, timestamp: presentationTimeStamp)
+            },
+            decompressionOutputRefCon: Unmanaged.passUnretained(self).toOpaque()
+        )
 
         let status = VTDecompressionSessionCreate(
             allocator: nil,
             formatDescription: formatDescription,
             decoderSpecification: decoderSpecification,
             imageBufferAttributes: nil,
-            outputCallback: outputCallback,
-            decompressionOutputRefCon: Unmanaged.passUnretained(self).toOpaque(),
+            outputCallback: &callbackRecord,
             decompressionSessionOut: &session
         )
 
