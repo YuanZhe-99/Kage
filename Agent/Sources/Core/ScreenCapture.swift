@@ -55,11 +55,6 @@ class ScreenCapture: NSObject {
     func startCapture(display: SCDisplay) async throws {
         guard !isCapturing else { return }
 
-        let content = try await SCShareableContent.excludingDesktopWindows(
-            false,
-            onScreenWindowsOnly: true
-        )
-
         filter = SCContentFilter(display: display, excludingWindows: [])
 
         stream = SCStream(filter: filter!, configuration: configuration, delegate: self)
@@ -71,11 +66,6 @@ class ScreenCapture: NSObject {
 
     func startCapture(window: SCWindow) async throws {
         guard !isCapturing else { return }
-
-        let content = try await SCShareableContent.excludingDesktopWindows(
-            false,
-            onScreenWindowsOnly: true
-        )
 
         filter = SCContentFilter(desktopIndependentWindow: window)
 
