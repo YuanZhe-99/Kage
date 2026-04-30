@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  turn-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3478:3478/udp"
+      - "3478:3478/tcp"
+      - "49152-65535:49152-65535/udp"
+    environment:
+      - LISTEN_ADDR=0.0.0.0
+      - PORT=3478
+      - REALM=kage
+      - AUTH_SECRET=${AUTH_SECRET:-default-secret-change-me}
+    restart: unless-stopped
+    networks:
+      - turn-network
+
+networks:
+  turn-network:
+    driver: bridge
