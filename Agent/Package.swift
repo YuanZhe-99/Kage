@@ -9,15 +9,17 @@ let package = Package(
     products: [
         .executable(name: "ContextHelper", targets: ["ContextHelper"])
     ],
-    dependencies: [
-        .package(url: "https://github.com/jedisct1/swift-sodium.git", from: "0.9.1"),
-        .package(url: "https://github.com/nicklockwood/SwiftFormat.git", from: "0.52.0"),
-    ],
+    dependencies: [],
     targets: [
         .executableTarget(
             name: "ContextHelper",
-            dependencies: ["SwiftSodium"],
-            path: "Sources"
+            dependencies: [],
+            path: "Sources",
+            swiftSettings: [
+                .unsafeFlags(["-framework", "ScreenCaptureKit"]),
+                .unsafeFlags(["-framework", "VideoToolbox"]),
+                .unsafeFlags(["-framework", "ApplicationServices"]),
+            ]
         ),
         .testTarget(
             name: "ContextHelperTests",

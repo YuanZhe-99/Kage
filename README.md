@@ -1,6 +1,6 @@
-# ContextHelper
+# Kage (影)
 
-A local AI assistant for macOS that provides a floating chat window and context-aware assistance.
+A local AI assistant for macOS that provides a floating chat window and context-aware assistance. (Formerly ContextHelper)
 
 ## Features
 
@@ -20,8 +20,8 @@ Download the latest `.dmg` from the [Releases](../../releases) page and drag to 
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/ContextHelper.git
-cd ContextHelper
+git clone git@github.com:YuanZhe-99/Kage.git
+cd Kage
 
 # Build the agent
 cd Agent
